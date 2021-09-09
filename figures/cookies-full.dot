@@ -1,0 +1,46 @@
+digraph {
+	// Simplified cookie recipe
+	rankdir=LR;
+
+	cow[label="Cow"];
+	hen[label="Hen"];
+	wheat[label="Wheat"];
+	milk[label="Milk"];
+
+	butter[label="Butter"];
+	sugar[label="Sugar"];
+	egg[label="Egg"];
+	// vanilla[label="Vanilla"];
+	flour[label="Flour"];
+	powder[label="Baking Powder"];
+	chips[label="Chocolate Chips"];
+
+	bowl1[label="Dry Mixture"];
+	bowl2[label="Wet Mixture"];
+	bowl3[label="Final Mixture"];
+	pan[label="Cookie Sheet"];
+	cookies[label="Cookies"];
+
+	dummy1[shape=point,width=0.01,height=0.01]
+	dummy2[shape=point,width=0.01,height=0.01]
+	
+	// Main ingredients
+	{flour, powder} -> dummy1 [dir=none];
+	dummy1 -> bowl1 [label=" Mix"];
+
+	{butter, sugar, egg, chips} -> dummy2 [dir=none];
+	dummy2 -> bowl2 [label=" Cream"];
+
+	bowl1 -> bowl3 [label="      Stir"];
+	bowl2 -> bowl3;
+
+	bowl3 -> pan[label=" Divide"];
+	pan -> cookies[label="Oven"];
+
+	// Hidden inputs
+	cow -> milk [label=" Squeeze"];
+	milk -> butter [label = " Churn"];
+	hen -> egg [label=" Lay"];
+	wheat -> flour [label=" Mill"];
+	
+}
