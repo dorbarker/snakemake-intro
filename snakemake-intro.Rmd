@@ -49,6 +49,12 @@ style_duo_accent(
 4. Running Snakemake
 5. Assignment 1
 
+Preparation for Assignment 1:
+```bash
+sbatch -c 1 --mem 4G --wrap \
+"conda create -n smk-lesson-1 -c conda-forge -c bioconda prokka pirate"
+```
+
 ---
 
 ## Why Snakemake?
@@ -292,21 +298,8 @@ rule annotate_genome:
     threads: 8
     shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
-
 ---
-## Running Snakemake (Basic)
-
-The **basic invocation** of Snakemake:
-```bash
-snakemake --jobs <number of parallel jobs> -s <path to your Snakefile> -d <work directory>
-```
-
-Example populated with real values:
-```bash
-snakemake --jobs 5 -s ~/snakefiles/assemble.smk -d ~/Projects/cj_population_study
-```
----
-## Running Snakemake (Caveats)
+## Caveats and Assumptions
 
 ### Directory Structure
 
@@ -320,6 +313,19 @@ snakemake --jobs 5 -s ~/snakefiles/assemble.smk -d ~/Projects/cj_population_stud
     - Override with `--keep-going`
     - Dependent jobs will still await all inputs
     - _e.g._ if stiring the dry cookie mixture fails, the wet mixture still gets made, but nothing goes in the oven
+---
+
+## Running Snakemake (Basic)
+
+The **basic invocation** of Snakemake:
+```bash
+snakemake --jobs <number of parallel jobs> -s <path to your Snakefile> -d <work directory>
+```
+
+Example populated with real values:
+```bash
+snakemake --jobs 5 -s ~/snakefiles/assemble.smk -d ~/Projects/cj_population_study
+```
 ---
 
 ## Running Snakemake on Waffles
@@ -358,6 +364,92 @@ Write a Snakemake workflow that does the following:
 2. Symlink GFF annotations into `gffs/`
 3. Build a pangenome with PIRATE
 
+`conda activate smk-lesson-1`
 ---
+class: inverse, center, middle
+
 # Lesson 2
+
+---
+## Lesson 2
+
+1. Assignment 1 Answers
+2. Conda Integration
+3. Params and Threads
+4. Mixing in Python (and R and Julia)
+5. Assignment 2
+
+---
+## Assignment 1
+
+---
+## Conda Integration
+
+- Snakemake can manage `conda` directly
+- No need to manually build or activate conda environments
+
+### Conda directive
+```python
+rule annotate_genome:
+    input: "genomes/{sample}.fasta"
+    output: "annotations/{sample}/{sample}.gff"
+    conda: "envs/prokka.yaml"
+    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+```
+---
+
+## Conda YAML files
+
+- Placed **relative to the Snakefile**, _not_ the project directory
+
+```python
+# annotate.smk
+rule annotate_genome:
+    input: "genomes/{sample}.fasta"
+    output: "annotations/{sample}/{sample}.gff"
+    conda: "envs/prokka.yaml"
+    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+```
+
+The above will look for the following directory structure:
+
+```sh
+snakefiles/
+├── annotate.smk
+└── envs
+    └── prokka.yaml
+```
+---
+## Conda YAML files
+
+This YAML file …
+```yaml
+name: prokka
+channels:
+    - conda-forge
+    - bioconda
+    - defaults
+dependencies:
+    - prokka
+```
+… is equivalent to this conda command:
+```sh
+conda create -n prokka -c conda-forge -c bioconda -c defaults prokka
+```
+---
+## Using Conda Directives in Snakemake
+
+- Must explicitly tell Snakemake to use Conda
+
+```sh
+snakemake --use-conda <…>
+```
+---
+## Config
+
+---
+
+## Params
+
+- Non-file parameters may be provided in the `params` directive
 
