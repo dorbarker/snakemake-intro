@@ -576,3 +576,32 @@ rule run_abricate:
     output: "amr_results.tsv"
     shell: "abricate {input.fastas} > {output}"
 ```
+---
+## Assignment 2
+
+- Build upon your Assignment 1
+- Hints on next slide
+
+1. Create conda YAMLs for `prokka` and `pirate`
+
+2. Give appropriate resources to each rule with `params`
+
+3. Write a rule with a `run` block that reads `PIRATE.gene_families.tsv` and creates a multifasta for each with all the alleles of the gene 
+    - columns of interest: `gene_family` & `number_genomes`
+
+4. A rule that:
+    - Uses an input function to selects the multifastas present in 100% of genomes
+    - Symlinks these into a directory called `loci`
+
+---
+
+## Assignment 2 Hints
+
+### `pandas` for easily reading tabular files
+```python
+import pandas as pd
+data_table = pd.read_csv("path/to/file.tsv", sep = "\t")
+# select values from columnA where columnC is greater than 42
+selector_values = data_table["columnC"] > 42
+result = data_table["columnA"].loc[selector_values]
+```
