@@ -527,6 +527,8 @@ rule symlink_gff:
 
 - Write Python inside the `run` block, rather than Bash in a `shell` block
 
+- May access snakemake values like `input` and `output`
+
 ```python
 rule transpose_table:
     input: "data/results_table.csv"
@@ -579,19 +581,19 @@ rule run_abricate:
 ---
 ## Assignment 2
 
-- Build upon your Assignment 1
-- Hints on next slide
+- Build upon Assignment 1
 
 1. Create conda YAMLs for `prokka` and `pirate`
 
 2. Give appropriate resources to each rule with `params`
 
-3. Write a rule with a `run` block that reads `PIRATE.gene_families.tsv` and creates a multifasta for each with all the alleles of the gene 
+3. Write a rule with a `run` block that reads `PIRATE.gene_families.tsv`, finds loci present in 100% of genomes, and writes their names to a text file
     - columns of interest: `gene_family` & `number_genomes`
 
 4. A rule that:
-    - Uses an input function to selects the multifastas present in 100% of genomes
+    - Uses an input function reads selected genes from the text file in **Part 3**
     - Symlinks these into a directory called `loci`
+        - Either `shell` or `run` at your preference
 
 ---
 
@@ -600,8 +602,36 @@ rule run_abricate:
 ### `pandas` for easily reading tabular files
 ```python
 import pandas as pd
-data_table = pd.read_csv("path/to/file.tsv", sep = "\t")
-# select values from columnA where columnC is greater than 42
-selector_values = data_table["columnC"] > 42
-result = data_table["columnA"].loc[selector_values]
+data_table = pd.read_csv(input[0], sep = "\t")
+# select rows from columnA where columnC is greater than 42
+selected_rows = data_table["columnC"] > 42
+selected_columnA = data_table["columnA"].loc[selected_rows]
+```
+
+### Creating symlinks from a list of file basenames
+```python
+# list_of_names = ["larry", "moe", "curly"]
+import os
+for name in list_of_names:
+    src = f"originals/{name}.txt"
+    dst = f"filtered/{name}.txt"
+    os.symlink(src, dst)
+```
+
+---
+
+## Assignment 2 Hints
+
+### Reading a text file into a list with Python
+
+- Consider combining functions like this with `expand()`
+
+```python
+def read_lines_to_list(path: str):
+    lines = []
+    with open(path, "r") as f:
+        for line in f:
+            trimmed_line = line.strip()
+            lines.append(trimmed_line)
+    return lines
 ```
