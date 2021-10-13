@@ -258,6 +258,19 @@ grViz(binfx_dot_expanded)
 ```
 
 ---
+## Wildcards
+
+- We can match every file with particular naming pattern with wildcards
+
+- In a rule, wrap a variable name with curly braces
+    - _e.g._ `{sample}`
+
+- Rule will be applied in parallel to each file matching the rule
+
+- In `shell` block, you can access these when preceded by `wildcards`
+    - _e.g._ `{wildcards.sample}`
+
+---
 ## Rules for Multiple Samples
 
 ```python
