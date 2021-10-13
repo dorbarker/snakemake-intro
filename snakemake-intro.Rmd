@@ -450,7 +450,20 @@ snakemake --use-conda <…>
 ---
 ## Config
 Configuration is possible through `config`
-  - Python `dict` available within the Snakefile
+- Python `dict` available within the Snakefile
+
+- Available through two methods
+    - `--config` passes arguments directly via command line
+    - `--configfile` points to a YAML file that provides values
+
+`--config "key=value"` is equivalent to `--configfile config.yaml` where…
+
+```yaml
+# config.yaml
+key: "value"
+```
+
+---
 
 ### Configuration via:
 .pull-left[
