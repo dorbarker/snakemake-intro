@@ -173,14 +173,14 @@ rule combine_bowls:
 
 ---
 ## Baking → Bioinformatics
-<div id="htmlwidget-054990998149db66fa0a" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-054990998149db66fa0a">{"x":{"diagram":"\ndigraph {\n  rankdir=LR;\n  fastq[label=\"FASTQ\"];\n  fasta[label=\"Genome FASTA\"];\n  alleles[label=\"Core Alleles\", shape=\"MRecord\"];\n  calls[label=\"Calls Table\"];\n  \n  dummy[shape=point, width=0.01, height=0.01];\n  fastq -> fasta [label = \"SPAdes\"];\n\n  alleles -> dummy[dir = none, style=\"dashed\"];\n  fasta -> dummy[dir = none];\n  dummy -> calls[label = \"MLST\"];\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7ad5d49cc4dc806bf72b" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7ad5d49cc4dc806bf72b">{"x":{"diagram":"\ndigraph {\n  rankdir=LR;\n  fastq[label=\"FASTQ\"];\n  fasta[label=\"Genome FASTA\"];\n  alleles[label=\"Core Alleles\", shape=\"MRecord\"];\n  calls[label=\"Calls Table\"];\n  \n  dummy[shape=point, width=0.01, height=0.01];\n  fastq -> fasta [label = \"SPAdes\"];\n\n  alleles -> dummy[dir = none, style=\"dashed\"];\n  fasta -> dummy[dir = none];\n  dummy -> calls[label = \"MLST\"];\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## Multiple Samples
 
-<div id="htmlwidget-d48bc75058ee8fe9d3a9" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-d48bc75058ee8fe9d3a9">{"x":{"diagram":"\ndigraph {\nrankdir=LR;\nalleles[label=\"alleles/aspA.fasta … uncA.fasta\", shape=MRecord];\ncalls[label=\"calls.tsv\"];\n\nfastqA[label=\"fastqs/genomeA.fastq\"];\nfastqB[label=\"fastqs/genomeB.fastq\"];\nfastqC[label=\"fastqs/genomeC.fastq\"];\n\nfastaA[label=\"assemblies/genomeA/contigs.fasta\"];\nfastaB[label=\"assemblies/genomeB/contigs.fasta\"];\nfastaC[label=\"assemblies/genomeC/contigs.fasta\"];\n\nmlstA[label=\"mlst_results/genomeA.tsv\"];\nmlstB[label=\"mlst_results/genomeB.tsv\"];\nmlstC[label=\"mlst_results/genomeC.tsv\"];\n\nfastqA -> fastaA [label=\"SPAdes\"];\nfastqB -> fastaB [label=\"SPAdes\"];\nfastqC -> fastaC [label=\"SPAdes\"];\n\ndummyA[shape=point, width=0.01, height=0.01];\ndummyB[shape=point, width=0.01, height=0.01];\ndummyC[shape=point, width=0.01, height=0.01];\ndummyD[shape=point, width=0.01, height=0.01];\n\nfastaA -> dummyA [dir=none];\nfastaB -> dummyB [dir=none];\nfastaC -> dummyC [dir=none];\nalleles -> {dummyA, dummyB, dummyC} [dir=none, style=\"dashed\"];\n\ndummyA -> mlstA [label=\"MLST\"];\ndummyB -> mlstB [label=\"MLST\"];\ndummyC -> mlstC [label=\"MLST\"];\n\n{mlstA, mlstB, mlstC} -> dummyD [dir=none];\ndummyD -> calls [label=\"combine\"];\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-3fa037793936925daee6" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3fa037793936925daee6">{"x":{"diagram":"\ndigraph {\nrankdir=LR;\nalleles[label=\"alleles/aspA.fasta … uncA.fasta\", shape=MRecord];\ncalls[label=\"calls.tsv\"];\n\nfastqA[label=\"fastqs/genomeA.fastq\"];\nfastqB[label=\"fastqs/genomeB.fastq\"];\nfastqC[label=\"fastqs/genomeC.fastq\"];\n\nfastaA[label=\"assemblies/genomeA/contigs.fasta\"];\nfastaB[label=\"assemblies/genomeB/contigs.fasta\"];\nfastaC[label=\"assemblies/genomeC/contigs.fasta\"];\n\nmlstA[label=\"mlst_results/genomeA.tsv\"];\nmlstB[label=\"mlst_results/genomeB.tsv\"];\nmlstC[label=\"mlst_results/genomeC.tsv\"];\n\nfastqA -> fastaA [label=\"SPAdes\"];\nfastqB -> fastaB [label=\"SPAdes\"];\nfastqC -> fastaC [label=\"SPAdes\"];\n\ndummyA[shape=point, width=0.01, height=0.01];\ndummyB[shape=point, width=0.01, height=0.01];\ndummyC[shape=point, width=0.01, height=0.01];\ndummyD[shape=point, width=0.01, height=0.01];\n\nfastaA -> dummyA [dir=none];\nfastaB -> dummyB [dir=none];\nfastaC -> dummyC [dir=none];\nalleles -> {dummyA, dummyB, dummyC} [dir=none, style=\"dashed\"];\n\ndummyA -> mlstA [label=\"MLST\"];\ndummyB -> mlstB [label=\"MLST\"];\ndummyC -> mlstC [label=\"MLST\"];\n\n{mlstA, mlstB, mlstC} -> dummyD [dir=none];\ndummyD -> calls [label=\"combine\"];\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## Wildcards
@@ -608,6 +608,85 @@ rule do_something:
     output: "somefile.txt"
     shell: "my_program {input} -o {output}"
 ```
+---
+class: inverse, center, middle
+
+# Lesson 3
+
+---
+
+## Lesson 3
+
+1. Assignment 2 Answer
+2. Fixing when things go wrong
+3. Priorities
+4. Script files
+5. Visualizing Workflows
+6. Clinic
+
+---
+
+## Assignment 2
+
+---
+
+## When Things Go Wrong
+
+- Snakemake locks its working directory when running
+    - Prevents other snakemake instances from running in the same place
+
+- Snakemake removes the lock when it completes (success _or_ failure)
+
+- Lockfile may not be removed when if snakemake crashes or is killed by slurm
+    - `scancel --user your_username` 
+
+
+```sh
+Unable to lock working directory.
+```
+
+---
+
+## Unlocking a Stale Lock
+
+#### The Correct Way: `--unlock`
+
+```bash
+sbatch -c 1 --mem 2G --wrap "snakemake --unlock -s path/to/you/workflow.smk -j 1"
+```
+
+#### ☠☠☠ Nuclear Option ☠☠☠
+
+```bash
+rm -r ./.snakemake
+```
+
+---
+## Priorities
+
+- Rule priorities may be set
+
+- These **are not** the same as slurm partitions
+
+- Only determine the priority of execution within the workflow
+
+---
+
+## Priorities
+- Rules default to priority `0`
+
+- Bigger numbers are higher priority
+
+```python
+rule my_example:
+  input: ...
+  output: ...
+  priority: 50
+  shell: ...
+```
+
+---
+## Script Files
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
