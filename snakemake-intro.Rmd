@@ -651,6 +651,7 @@ for name in list_of_names:
 ### Reading a text file into a list with Python
 
 - Consider combining functions like this with `expand()`
+    - `expand("path/to/{sample}.txt", sample=read_list_to_list())`
 
 ```python
 def read_lines_to_list(path: str):
@@ -660,4 +661,25 @@ def read_lines_to_list(path: str):
             trimmed_line = line.strip()
             lines.append(trimmed_line)
     return lines
+```
+
+---
+### Reading a text file, but using at as an input function
+
+```python
+def aggregate_files(path: str):
+    lines = []
+    with open(path, "r") as f:
+        for line in f:
+            trimmed_line = line.strip()
+            lines.append(trimmed_line)
+    lines_with_paths = [f"path/to/{sample}.txt" for sample in lines]
+    return lines_with_paths
+```
+
+```python
+rule do_something:
+    input: aggregate_files
+    output: "somefile.txt"
+    shell: "my_program {input} -o {output}"
 ```
