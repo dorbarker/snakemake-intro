@@ -269,7 +269,7 @@ rule all:
     
 rule assemble:
     input:
-        fwd="fastqs/{sample}/{sample_1.fastq}", rev="fastqs/{sample}/sample_2.fastq"
+        fwd="fastqs/{sample}/{sample}_1.fastq", rev="fastqs/{sample}/{sample}_2.fastq"
     output: "assemblies/{sample}/contigs.fasta"
     shell: "spades -1 {input.fwd} -2 {input.rev} -o assemblies/{wildcards.sample}"
 
