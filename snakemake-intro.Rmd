@@ -354,7 +354,7 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     threads: 8
-    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 ---
 ## Caveats and Assumptions
@@ -379,7 +379,7 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     threads: 8
-    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 _requires_ this structure:
 
@@ -456,6 +456,15 @@ Write a Snakemake workflow that does the following:
 
 `conda activate smk-lesson-1`
 ---
+## Assignment 1 Hints
+
+- Invoking PIRATE to generate nucleotide-based pangenome
+    - `PIRATE --input gffs/ --output pangenome/ --nucl --threads {threads}`
+
+- PIRATE produces many files, but you can rely on `PIRATE.gene_families.tsv` being created
+
+- You'll need to `expand()` your inputs to make sure all the GFF files are present
+---
 class: inverse, center, middle
 
 # Lesson 2
@@ -484,7 +493,7 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     conda: "envs/prokka.yaml"
-    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 ---
 
@@ -498,7 +507,7 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     conda: "envs/prokka.yaml"
-    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 
 The above will look for the following directory structure:
@@ -588,7 +597,7 @@ rule annotate_genome:
     params:
         time="45:00",
         mem="16G"
-    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
 
 rule symlink_gff:
     input: "annotations/{sample}/{sample}.gff"
