@@ -792,5 +792,43 @@ rule my_example:
   shell: ...
 ```
 ]
+
 ---
 ## Script Files
+
+- Can be used like a `run` block, but stored in another file
+    - Path is specified relative to the workflow
+
+- Available languages:
+    - Python
+    - R
+    - Julia
+    
+- Snakemake will use special variables in the script
+    - These scripts won't be general purpose!
+    - Tied to snakemake
+
+---
+## Script Files
+
+```python
+# workflow.smk
+rule scriptfile_example:
+    input:
+        "path/to/inputfile",
+        "path/to/other/inputfile"
+    output:
+        "path/to/outputfile",
+        "path/to/another/outputfile"
+    script:
+        "scripts/script.py"
+```
+
+```python
+# scripts/script.py
+def do_something(data_path, out_path, threads, myparam):
+    # python code here
+
+do_something(snakemake.input[0], snakemake.output[0], 
+             snakemake.threads, snakemake.config["myparam"])
+```
