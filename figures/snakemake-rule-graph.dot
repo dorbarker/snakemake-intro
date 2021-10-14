@@ -1,0 +1,73 @@
+digraph snakemake_dag {
+    graph[bgcolor=white, margin=0, rankdir=LR];
+    node[shape=box, style=rounded, fontname=sans, fontsize=10, penwidth=2];
+    edge[penwidth=2, color=grey];
+	0[label = "all", color = "0.51 0.6 0.85", style="rounded"];
+	1[label = "calculate_ntb", color = "0.09 0.6 0.85", style="rounded"];
+	2[label = "run_feht", color = "0.24 0.6 0.85", style="rounded"];
+	3[label = "find_maximum_negative_threshold", color = "0.62 0.6 0.85", style="rounded"];
+	4[label = "expand_cohorts", color = "0.36 0.6 0.85", style="rounded"];
+	5[label = "cluster_grapetree", color = "0.49 0.6 0.85", style="rounded"];
+	6[label = "calculate_newick_tree", color = "0.00 0.6 0.85", style="rounded"];
+	7[label = "format_grapetree_calls", color = "0.60 0.6 0.85", style="rounded"];
+	8[label = "calculate_cohorts", color = "0.11 0.6 0.85", style="rounded"];
+	9[label = "binarize_markers", color = "0.18 0.6 0.85", style="rounded"];
+	10[label = "get_PIRATE_to_Rtab", color = "0.64 0.6 0.85", style="rounded"];
+	11[label = "pirate_pangenome", color = "0.29 0.6 0.85", style="rounded"];
+	12[label = "get_positive_primers", color = "0.33 0.6 0.85", style="rounded"];
+	13[label = "concatenate_blast_results", color = "0.40 0.6 0.85", style="rounded"];
+	14[label = "blast_top_pairs_against_genomes", color = "0.27 0.6 0.85", style="rounded"];
+	15[label = "fastulate_top_pairs", color = "0.42 0.6 0.85", style="rounded"];
+	16[label = "extract_top_pairs", color = "0.22 0.6 0.85", style="rounded"];
+	17[label = "select_top_primers", color = "0.53 0.6 0.85", style="rounded"];
+	18[label = "format_primer_table", color = "0.47 0.6 0.85", style="rounded"];
+	19[label = "generate_primer", color = "0.16 0.6 0.85", style="rounded"];
+	20[label = "generate_primer_configs", color = "0.58 0.6 0.85", style="rounded"];
+	21[label = "generate_consensus_sequence", color = "0.38 0.6 0.85", style="rounded"];
+	22[label = "summarize_balanaced", color = "0.04 0.6 0.85", style="rounded"];
+	23[label = "symlink_balanced_ntb", color = "0.07 0.6 0.85", style="rounded"];
+	24[label = "calculate_ntb_balanced", color = "0.44 0.6 0.85", style="rounded"];
+	25[label = "run_feht_balanced", color = "0.13 0.6 0.85", style="rounded"];
+	26[label = "transpose_balanced", color = "0.56 0.6 0.85", style="rounded"];
+	27[label = "create_balanced_cohorts", color = "0.02 0.6 0.85", style="rounded"];
+	28[label = "transpose_binary_markers", color = "0.20 0.6 0.85", style="rounded"];
+	29[label = "generate_primer_pair_calls", color = "0.31 0.6 0.85", style="rounded"];
+	29 -> 0
+	12 -> 0
+	1 -> 0
+	2 -> 1
+	3 -> 2
+	4 -> 2
+	9 -> 2
+	4 -> 3
+	5 -> 4
+	8 -> 4
+	6 -> 5
+	7 -> 6
+	5 -> 8
+	11 -> 9
+	10 -> 9
+	13 -> 12
+	14 -> 13
+	15 -> 14
+	16 -> 15
+	17 -> 16
+	22 -> 17
+	18 -> 17
+	19 -> 18
+	20 -> 19
+	21 -> 20
+	11 -> 21
+	23 -> 22
+	24 -> 23
+	25 -> 24
+	27 -> 25
+	3 -> 25
+	26 -> 25
+	27 -> 26
+	3 -> 27
+	4 -> 27
+	28 -> 27
+	9 -> 28
+	12 -> 29
+}            

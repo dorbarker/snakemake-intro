@@ -256,6 +256,17 @@ dummyD -> calls [label="combine"];
 
 grViz(binfx_dot_expanded)
 ```
+---
+## Multiple Samples
+
+- Recall that rules are only executed if their inputs update or outputs are missing
+
+- Lets you run jobs without worrying you'll waste effort
+
+### MLST Example from Above
+
+1. If you have 1000 genomes and run the above MLST rule, it will calculate 1000 calls, and build the calls table
+2. If you add 1 more genome, and rerun snakemake, only a single MLST will run, and the calls table is rebuilt
 
 ---
 ## Wildcards
@@ -831,4 +842,23 @@ def do_something(data_path, out_path, threads, myparam):
 
 do_something(snakemake.input[0], snakemake.output[0], 
              snakemake.threads, snakemake.config["myparam"])
+```
+
+---
+## Visualizing Workflows
+
+
+```bash
+# Shows just the abstract graph of rules
+snakemake -s your/workflow.smk --rulegraph | dot -Tpng > workflow.png
+# OR
+# Show every sample's journey through the workflow
+snakemake -s your/workflow.smk --dag | dot -Tpng > workflow.png
+```
+
+
+```{r, snakemake-workflow, echo=FALSE, fig.height=3.5}
+workflow <- paste0(readLines("figures/snakemake-rule-graph.dot"))
+grViz(workflow)
+
 ```
