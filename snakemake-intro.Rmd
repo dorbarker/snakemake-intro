@@ -52,7 +52,7 @@ style_duo_accent(
 Preparation for Assignment 1:
 ```bash
 sbatch -c 1 --mem 4G --wrap \
-"conda create -n smk-lesson-1 -c conda-forge -c bioconda prokka pirate"
+"conda create -n smk-lesson-1 -c conda-forge -c bioconda prokka pirate snakemake"
 ```
 
 ---
@@ -185,6 +185,16 @@ rule combine_bowls:
     output: "bowls/final.mix"
     shell: "mixer {input.wet} {input.dry} > {output}"
 ```
+---
+## Rules for Baking
+
+- The `all` rule is the final target, and written first
+
+- Each rule specifies its `input` and `output`
+
+- The `shell` command defines how the `input` becomes the `output`
+
+- Snakemake matches up `input` and `output` for all the rules until it can generate `all`
 
 ---
 ## Baking → Bioinformatics
@@ -862,3 +872,9 @@ workflow <- paste0(readLines("figures/snakemake-rule-graph.dot"))
 grViz(workflow)
 
 ```
+
+---
+class: center, middle
+
+# Clinic
+## Please feel free to ask any questions!
