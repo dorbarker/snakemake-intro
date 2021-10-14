@@ -292,6 +292,30 @@ grViz(binfx_dot_expanded)
     - _e.g._ `{wildcards.sample}`
 
 ---
+## Expanding patterns
+
+- The `expand()` function can be useful for taking a pattern and using it to get many files matching that pattern
+
+```python
+# get sample names from starting fastas
+# genomes/foo.fasta, genome/bar.fasta, genome/baz.fasta
+from pathlib import Path
+samples = [p.stem for p in Path("genomes").glob("*.fasta")]
+# samples = ["foo", "bar", "baz"]
+
+rule all:
+    input: "aggregated_results.txt"
+
+rule process_genomes:
+    input: "genomes/{sample}.fasta"
+    output: "results/{sample}.txt"
+    shell: "frobnicate {input} > {output}"
+
+rule takes_many_files:
+    input: expand("results/{sample}.txt", sample=samples)
+    output: "aggregated_results.txt"
+```
+---
 ## Rules for Multiple Samples
 
 ```python
