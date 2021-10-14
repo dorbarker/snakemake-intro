@@ -316,10 +316,42 @@ rule annotate_genome:
 
 ### Directory Structure
 
+- Snakefiles themselves can live anywhere
+    - I keep mine in `~/snakefiles/`
+
 - Workflows tightly coupled to any directory structure described within
 - Will implicitly create any directories it needs
     - No need for `mkdir`
 
+
+---
+## Directory Structure
+
+This rule…
+
+```python
+rule annotate_genome:
+    input: "genomes/{sample}.fasta"
+    output: "annotations/{sample}/{sample}.gff"
+    threads: 8
+    shell: "prokka --cpus {threads} -o annotations/{wildcards.sample} {input}"
+```
+_requires_ this structure:
+
+```
+analysis/
+├── annotations/
+│   ├── isolateA.fasta
+│   ├── isolateB.fasta
+│   └── isolateC.fasta
+└── genomes/
+    ├── isolateA.fasta
+    ├── isolateB.fasta
+    └── isolateC.fasta
+```
+
+---
+## Caveats and Assumptions
 ### Independent Jobs
 
 - Failure of any job will abort all other jobs
@@ -389,7 +421,7 @@ class: inverse, center, middle
 1. Assignment 1 Answers
 2. Conda Integration
 3. Params and Threads
-4. Mixing in Python (and R and Julia)
+4. Mixing in Python
 5. Assignment 2
 
 ---
@@ -695,7 +727,7 @@ class: inverse, center, middle
 1. Assignment 2 Answer
 2. Fixing when things go wrong
 3. Priorities
-4. Script files
+4. Script files (Python, R, and Julia)
 5. Visualizing Workflows
 6. Clinic
 
@@ -727,7 +759,7 @@ Unable to lock working directory.
 #### The Correct Way: `--unlock`
 
 ```bash
-sbatch -c 1 --mem 2G --wrap "snakemake --unlock -s path/to/you/workflow.smk -j 1"
+sbatch -c 1 --mem 2G --wrap "snakemake --unlock -s path/to/your/workflow.smk -j 1"
 ```
 
 #### ☠☠☠ Nuclear Option ☠☠☠
@@ -739,19 +771,19 @@ rm -r ./.snakemake
 ---
 ## Priorities
 
+.pull-left[
 - Rule priorities may be set
 
 - These **are not** the same as slurm partitions
 
 - Only determine the priority of execution within the workflow
 
----
-
-## Priorities
 - Rules default to priority `0`
 
 - Bigger numbers are higher priority
+]
 
+.pull-right[
 ```python
 rule my_example:
   input: ...
@@ -759,6 +791,6 @@ rule my_example:
   priority: 50
   shell: ...
 ```
-
+]
 ---
 ## Script Files
