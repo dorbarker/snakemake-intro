@@ -739,10 +739,7 @@ rule run_abricate:
     shell: "abricate {input.fastas} > {output}"
 ```
 ---
-## Assignment 2
-
-- Build upon Assignment 1
-
+## Assignment 2 - Building On Assignment 1
 1. Create conda YAMLs for `prokka` and `pirate`
 
 2. Give appropriate resources to each rule with `params`
@@ -750,23 +747,19 @@ rule run_abricate:
 3. Write a rule with a `run` block that reads `PIRATE.gene_families.tsv`, finds loci present in 100% of genomes, and writes their names to a text file
     - columns of interest: `gene_family` & `number_genomes`
 
-4. A rule that:
-    - Uses an input function reads selected genes from the text file in **Part 3**
-    - Symlinks these into a directory called `loci`
-        - Either `shell` or `run` at your preference
-        
-5. Provides a GBK file to prokka's `--proteins` argument via `--config` or `--configfile`
+4. Provides a GBK file to prokka's `--proteins` argument via `--config` or `--configfile`
 ---
 
 ## Assignment 2 Hints
 
-### `pandas` for easily reading tabular files
+### `pandas` for easily reading and writing tabular files
 ```python
 import pandas as pd
 data_table = pd.read_csv(input[0], sep = "\t")
 # select rows from columnA where columnC is greater than 42
 selected_rows = data_table["columnC"] > 42
 selected_columnA = data_table["columnA"].loc[selected_rows]
+selected_columnA.to_csv(output[0], header=False)
 ```
 
 ### Creating symlinks from a list of file basenames
