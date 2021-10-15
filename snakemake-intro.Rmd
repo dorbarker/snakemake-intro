@@ -51,8 +51,11 @@ style_duo_accent(
 
 Preparation for Assignment 1:
 ```bash
-sbatch -c 1 --mem 4G --wrap \
-"conda create -n smk-lesson-1 -c conda-forge -c bioconda prokka pirate snakemake"
+sbatch -c 1 --mem 4G -J conda --wrap \
+"conda create -n prokka -c conda-forge -c bioconda prokka"
+
+sbatch -c 1 --mem 4G -J conda --wrap \
+"conda create -n pirate -c bioconda -c conda-forge pirate"
 ```
 
 ---
@@ -354,8 +357,15 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     threads: 8
-    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell: 
+        "prokka --force --prefix {wildacards.sample} "
+        "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
+
+.footnote[
+You can split the `shell` block over multiple lines.
+Leave a space at the end of each chunk!
+]
 ---
 ## Caveats and Assumptions
 
@@ -379,7 +389,9 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     threads: 8
-    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell:
+        "prokka --force --prefix {wildacards.sample} "
+        "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 _requires_ this structure:
 
@@ -400,7 +412,7 @@ analysis/
 ### Independent Jobs
 
 - Failure of any job will abort all other jobs
-    - Override with `--keep-going`
+    - Override with `--keep-going` (I usually do this for routine work)
     - Dependent jobs will still await all inputs
     - _e.g._ if stiring the dry cookie mixture fails, the wet mixture still gets made, but nothing goes in the oven
 ---
@@ -454,7 +466,10 @@ Write a Snakemake workflow that does the following:
 2. Symlink GFF annotations into `gffs/`
 3. Build a pangenome with PIRATE
 
-`conda activate smk-lesson-1`
+```bash
+conda activate prokka
+conda activate --stack pirate
+```
 ---
 ## Assignment 1 Hints
 
@@ -493,7 +508,9 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     conda: "envs/prokka.yaml"
-    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell:         
+        "prokka --force --prefix {wildacards.sample} "
+        "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 ---
 
@@ -507,7 +524,9 @@ rule annotate_genome:
     input: "genomes/{sample}.fasta"
     output: "annotations/{sample}/{sample}.gff"
     conda: "envs/prokka.yaml"
-    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell:         
+        "prokka --force --prefix {wildacards.sample} "
+        "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 
 The above will look for the following directory structure:
@@ -597,7 +616,9 @@ rule annotate_genome:
     params:
         time="45:00",
         mem="16G"
-    shell: "prokka --force --cpus {threads} -o annotations/{wildcards.sample} {input}"
+    shell:         
+        "prokka --force --prefix {wildacards.sample} "
+        "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 
 rule symlink_gff:
     input: "annotations/{sample}/{sample}.gff"
@@ -706,7 +727,8 @@ rule run_abricate:
     - Uses an input function reads selected genes from the text file in **Part 3**
     - Symlinks these into a directory called `loci`
         - Either `shell` or `run` at your preference
-
+        
+5. Provides a GBK file to prokka's `--proteins` argument via `--config` or `--configfile`
 ---
 
 ## Assignment 2 Hints
@@ -792,6 +814,7 @@ class: inverse, center, middle
 ---
 
 ## When Things Go Wrong
+### Locked Working Directories
 
 - Snakemake locks its working directory when running
     - Prevents other snakemake instances from running in the same place
@@ -821,6 +844,16 @@ sbatch -c 1 --mem 2G --wrap "snakemake --unlock -s path/to/your/workflow.smk -j 
 ```bash
 rm -r ./.snakemake
 ```
+---
+## When Things Go Wrong
+### It Should Have Worked But It Didn't
+
+- Sometimes a job finishes successfully but snakemake doesn't detect the outputs
+
+- Filesystem latency _especially_ on a cluster like Waffles can be a factor
+    - It takes some non-zero amount of time to write results to disk
+    
+- Consider setting `--latency-wait` with larger number (default: `5`)
 
 ---
 ## Priorities
