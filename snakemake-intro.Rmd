@@ -460,6 +460,26 @@ Submitting the Snakemake job to Slurm:
 ---
 ## Assignment 1
 
+### Get The Test Data on Waffles
+
+```bash
+cp -r /Drives/W/Projects/CampyLab/snakemake-intro-data/ ~/snakemake-intro-data
+
+# Or if you don't have access to Projects
+cp -r /Drives/W/Temporary/snakemake-intro-data/ ~/snakemake-intro-data
+```
+
+### If You're Not Using Waffles
+```bash
+url="https://github.com/dorbarker/snakemake-intro/blob/main/data/snakemake-intro-data.zip"
+fn="$HOME/snakemake-intro-data.zip"
+
+curl -o $fn $url || wget -O $fn $url
+```
+
+---
+## Assignment 1
+
 Write a Snakemake workflow that does the following:
 
 1. Run Prokka on each genome
@@ -594,7 +614,6 @@ snakemake --use-conda <…>
 
 ---
 ## Config
-Configuration is possible through `config`
 - Python `dict` available within the Snakefile
 
 - Available through two methods
@@ -608,6 +627,7 @@ Configuration is possible through `config`
 key: "value"
 ```
 
+- Access as `config["key"]` inside the workflow
 ---
 
 ### Configuration via:
@@ -627,6 +647,18 @@ YAML file:
 ## Params
 
 - Non-file parameters may be provided in the `params` directive
+
+```python
+rule annotate:
+    input: "genomes/{sample}.fasta"
+    output: "annotations/{sample}/{sample}.gff"
+    threads: 8
+    params: outdir="annotations/{sample}"
+    shell:
+            "prokka --force --cpus {threads} "
+            "--prefix {wildcards.sample} --outdir {params.outdir} "
+            "{input}"
+```
 ---
 
 ## Abusing Params to Fine-tune Resources
@@ -804,8 +836,9 @@ class: inverse, center, middle
 2. Fixing when things go wrong
 3. Priorities
 4. Script files (Python, R, and Julia)
-5. Visualizing Workflows
-6. Clinic
+5. Modularizing workflows
+6. Visualizing Workflows
+7. Clinic
 
 ---
 
@@ -863,7 +896,7 @@ rm -r ./.snakemake
 
 - These **are not** the same as slurm partitions
 
-- Only determine the priority of execution within the workflow
+- Only determine the priority of execution _within_ the workflow
 
 - Rules default to priority `0`
 
@@ -883,7 +916,9 @@ rule my_example:
 ---
 ## Script Files
 
-- Can be used like a `run` block, but stored in another file
+- Not to be confuse with an external command 
+
+- Like a `run` block, but stored in another file
     - Path is specified relative to the workflow
 
 - Available languages:
@@ -919,7 +954,23 @@ def do_something(data_path, out_path, threads, myparam):
 do_something(snakemake.input[0], snakemake.output[0], 
              snakemake.threads, snakemake.config["myparam"])
 ```
+---
+## Including Workflows
 
+- Existing workflows can be included with `include`
+
+- Allows more modular design of workflows
+
+- Like copy/pasting another workflow in
+
+```python
+rule all:
+    input: "summary_report.txt"
+
+include: "summary_report.smk"
+inlcude: "determine_amr.smk"
+include: "assemble_genomes.smk"
+```
 ---
 ## Visualizing Workflows
 
