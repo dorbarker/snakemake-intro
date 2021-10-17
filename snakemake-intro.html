@@ -4,7 +4,7 @@
     <title>Introduction to Snakemake</title>
     <meta charset="utf-8" />
     <meta name="author" content="Dillon Barker" />
-    <meta name="date" content="2021-10-17" />
+    <meta name="date" content="2021-10-18" />
     <script src="snakemake-intro_files/htmlwidgets/htmlwidgets.js"></script>
     <script src="snakemake-intro_files/viz/viz.js"></script>
     <link href="snakemake-intro_files/DiagrammeR-styles/styles.css" rel="stylesheet" />
@@ -17,7 +17,7 @@ class: center, middle, inverse, title-slide
 
 # Introduction to Snakemake
 ### Dillon Barker
-### 2021-10-17
+### 2021-10-18
 
 ---
 
@@ -63,6 +63,7 @@ Front-loading your effort.
 Modest investment at the beginning of a project yields a hands-off tool for
 performing routine analyses.
 
+Snakemake will only run what it needs to - will only evaluate what changes.
 ]
 
 ---
@@ -82,7 +83,7 @@ Others' Snakefiles
 .right-column[
 Guarantee that the same inputs will give the same outputs.
 
-Altering any input will make Snakemake re-evalutate the outputs.
+Altering an input will make Snakemake re-evalutate any outputs that depend upon it.
 
 Built-in version tracking.
 ]
@@ -106,6 +107,37 @@ Understand and modify the tools others have created for you.
 ]
 
 ---
+
+## Baking Cookies
+
+&lt;img src="figures/cookie.jpg" width="40%" style="display: block; margin: auto;" /&gt;
+
+.footnote[Procsilas Moscas - Wikimedia Commons]
+
+---
+
+## Baking Cookies by Following a "Script"
+
+.pull-left[
+1. _Mix_ **flour** &amp; **baking powder** in a bowl
+
+2. _Cream_ **butter**, **egg**, **chocolate chips**, and **sugar** in another bowl
+
+3. _Stir_ the **two bowls** together
+
+4. _Divide_ **dough blobs** onto a cookie sheet
+
+5. Bake in an _oven_ to get **cookies**
+]
+
+.pull-right[
+- We can follow a linear recipe start-to-finish
+
+- Imagine a robot following these steps
+    - Follows instructions, but can only run in sequence
+    - If the eggs were spoiled, it would get new eggs and start from the very beginning
+]
+---
 ## Baking with Graphs
 
 ![](figures/cookies-main.png)
@@ -117,7 +149,7 @@ Understand and modify the tools others have created for you.
   - starts at the final product
   - works backwards until it finds what it needs
 
-- A collection of dependencies not a sequence of instructions
+- A **collection of relationships** not a **sequence of instructions**
 
 - You tell it how to convert each input to each output
 
@@ -186,14 +218,14 @@ rule combine_bowls:
 
 ---
 ## Baking → Bioinformatics
-<div id="htmlwidget-2f07c25d319df8bf0485" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-2f07c25d319df8bf0485">{"x":{"diagram":"\ndigraph {\n  rankdir=LR;\n  fastq[label=\"FASTQ\"];\n  fasta[label=\"Genome FASTA\"];\n  alleles[label=\"Core Alleles\", shape=\"MRecord\"];\n  calls[label=\"Calls Table\"];\n  \n  dummy[shape=point, width=0.01, height=0.01];\n  fastq -> fasta [label = \"SPAdes\"];\n\n  alleles -> dummy[dir = none, style=\"dashed\"];\n  fasta -> dummy[dir = none];\n  dummy -> calls[label = \"MLST\"];\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-82e2770aca0f2d932d9a" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-82e2770aca0f2d932d9a">{"x":{"diagram":"\ndigraph {\n  rankdir=LR;\n  fastq[label=\"FASTQ\"];\n  fasta[label=\"Genome FASTA\"];\n  alleles[label=\"Core Alleles\", shape=\"MRecord\"];\n  calls[label=\"Calls Table\"];\n  \n  dummy[shape=point, width=0.01, height=0.01];\n  fastq -> fasta [label = \"SPAdes\"];\n\n  alleles -> dummy[dir = none, style=\"dashed\"];\n  fasta -> dummy[dir = none];\n  dummy -> calls[label = \"MLST\"];\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## Multiple Samples
 
-<div id="htmlwidget-8bf4dbab61b0036ab18e" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-8bf4dbab61b0036ab18e">{"x":{"diagram":"\ndigraph {\nrankdir=LR;\nalleles[label=\"alleles/aspA.fasta … uncA.fasta\", shape=MRecord];\ncalls[label=\"calls.tsv\"];\n\nfastqA[label=\"fastqs/genomeA.fastq\"];\nfastqB[label=\"fastqs/genomeB.fastq\"];\nfastqC[label=\"fastqs/genomeC.fastq\"];\n\nfastaA[label=\"assemblies/genomeA/contigs.fasta\"];\nfastaB[label=\"assemblies/genomeB/contigs.fasta\"];\nfastaC[label=\"assemblies/genomeC/contigs.fasta\"];\n\nmlstA[label=\"mlst_results/genomeA.tsv\"];\nmlstB[label=\"mlst_results/genomeB.tsv\"];\nmlstC[label=\"mlst_results/genomeC.tsv\"];\n\nfastqA -> fastaA [label=\"SPAdes\"];\nfastqB -> fastaB [label=\"SPAdes\"];\nfastqC -> fastaC [label=\"SPAdes\"];\n\ndummyA[shape=point, width=0.01, height=0.01];\ndummyB[shape=point, width=0.01, height=0.01];\ndummyC[shape=point, width=0.01, height=0.01];\ndummyD[shape=point, width=0.01, height=0.01];\n\nfastaA -> dummyA [dir=none];\nfastaB -> dummyB [dir=none];\nfastaC -> dummyC [dir=none];\nalleles -> {dummyA, dummyB, dummyC} [dir=none, style=\"dashed\"];\n\ndummyA -> mlstA [label=\"MLST\"];\ndummyB -> mlstB [label=\"MLST\"];\ndummyC -> mlstC [label=\"MLST\"];\n\n{mlstA, mlstB, mlstC} -> dummyD [dir=none];\ndummyD -> calls [label=\"combine\"];\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-c08b22cd99aee8930be9" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c08b22cd99aee8930be9">{"x":{"diagram":"\ndigraph {\nrankdir=LR;\nalleles[label=\"alleles/aspA.fasta … uncA.fasta\", shape=MRecord];\ncalls[label=\"calls.tsv\"];\n\nfastqA[label=\"fastqs/genomeA.fastq\"];\nfastqB[label=\"fastqs/genomeB.fastq\"];\nfastqC[label=\"fastqs/genomeC.fastq\"];\n\nfastaA[label=\"assemblies/genomeA/contigs.fasta\"];\nfastaB[label=\"assemblies/genomeB/contigs.fasta\"];\nfastaC[label=\"assemblies/genomeC/contigs.fasta\"];\n\nmlstA[label=\"mlst_results/genomeA.tsv\"];\nmlstB[label=\"mlst_results/genomeB.tsv\"];\nmlstC[label=\"mlst_results/genomeC.tsv\"];\n\nfastqA -> fastaA [label=\"SPAdes\"];\nfastqB -> fastaB [label=\"SPAdes\"];\nfastqC -> fastaC [label=\"SPAdes\"];\n\ndummyA[shape=point, width=0.01, height=0.01];\ndummyB[shape=point, width=0.01, height=0.01];\ndummyC[shape=point, width=0.01, height=0.01];\ndummyD[shape=point, width=0.01, height=0.01];\n\nfastaA -> dummyA [dir=none];\nfastaB -> dummyB [dir=none];\nfastaC -> dummyC [dir=none];\nalleles -> {dummyA, dummyB, dummyC} [dir=none, style=\"dashed\"];\n\ndummyA -> mlstA [label=\"MLST\"];\ndummyB -> mlstB [label=\"MLST\"];\ndummyC -> mlstC [label=\"MLST\"];\n\n{mlstA, mlstB, mlstC} -> dummyD [dir=none];\ndummyD -> calls [label=\"combine\"];\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 ---
 ## Multiple Samples
 
@@ -234,7 +266,7 @@ samples = [p.stem for p in Path("genomes").glob("*.fasta")]
 rule all:
     input: "aggregated_results.txt"
 
-rule process_genomes:
+rule process_single_genome:
     input: "genomes/{sample}.fasta"
     output: "results/{sample}.txt"
     shell: "frobnicate {input} &gt; {output}"
@@ -283,7 +315,7 @@ rule annotate_genome:
     output: "annotations/{sample}/{sample}.gff"
     threads: 8
     shell: 
-        "prokka --force --prefix {wildacards.sample} "
+        "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 
@@ -299,7 +331,9 @@ Leave a space at the end of each chunk!
 - Snakefiles themselves can live anywhere
     - I keep mine in `~/snakefiles/`
 
-- Workflows tightly coupled to any directory structure described within
+- Workflows tightly coupled to its directory structure
+    - The structure applies to the specified project directory
+
 - Will implicitly create any directories it needs
     - No need for `mkdir`
 
@@ -315,7 +349,7 @@ rule annotate_genome:
     output: "annotations/{sample}/{sample}.gff"
     threads: 8
     shell:
-        "prokka --force --prefix {wildacards.sample} "
+        "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 _requires_ this structure:
@@ -336,9 +370,12 @@ analysis/
 ## Caveats and Assumptions
 ### Independent Jobs
 
-- Failure of any job will abort all other jobs
-    - Override with `--keep-going` (I usually do this for routine work)
+- Failure of _any_ job will abort _all_ other jobs
+    - Default behaviour
+
+- Override with `--keep-going` (I usually do this for routine work)
     - Dependent jobs will still await all inputs
+
     - _e.g._ if stiring the dry cookie mixture fails, the wet mixture still gets made, but nothing goes in the oven
 ---
 
@@ -363,7 +400,7 @@ snakemake --jobs 5 -s ~/snakefiles/assemble.smk -d ~/Projects/cj_population_stud
 
 - Two parts:
   1. Tell Snakemake how to submit jobs with `--cluster`
-  2. Submit Snakemake itself as a Slurm job
+  2. Submit `snakemake` itself as a Slurm job
 
 ---
 ## Running Snakemake on Waffles
@@ -371,6 +408,7 @@ snakemake --jobs 5 -s ~/snakefiles/assemble.smk -d ~/Projects/cj_population_stud
 The `--cluster` argument:
 
 - Create a template command to pass to **Slurm**
+
 - May access Snakemake special variables like `{threads}`
     - **More on this later**
     
@@ -481,7 +519,7 @@ rule annotate_genome:
     output: "annotations/{sample}/{sample}.gff"
     conda: "envs/prokka.yaml"
     shell:         
-        "prokka --force --prefix {wildacards.sample} "
+        "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 ---
@@ -497,7 +535,7 @@ rule annotate_genome:
     output: "annotations/{sample}/{sample}.gff"
     conda: "envs/prokka.yaml"
     shell:         
-        "prokka --force --prefix {wildacards.sample} "
+        "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 
@@ -601,7 +639,7 @@ rule annotate_genome:
         time="45:00",
         mem="16G"
     shell:         
-        "prokka --force --prefix {wildacards.sample} "
+        "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 
 rule symlink_gff:
@@ -736,7 +774,7 @@ for name in list_of_names:
 ### Reading a text file into a list with Python
 
 - Consider combining functions like this with `expand()`
-    - `expand("path/to/{sample}.txt", sample=read_list_to_list())`
+    - `expand("path/to/{sample}.txt", sample=read_lines_to_list())`
 
 ```python
 def read_lines_to_list(path: str):
@@ -804,14 +842,14 @@ rm -r ./.snakemake
 ```
 ---
 ## When Things Go Wrong
-### It Should Have Worked But It Didn't
+### It Should Have Worked But It Didn't!
 
 - Sometimes a job finishes successfully but snakemake doesn't detect the outputs
 
 - Filesystem latency _especially_ on a cluster like Waffles can be a factor
     - It takes some non-zero amount of time to write results to disk
     
-- Consider setting `--latency-wait` with larger number (default: `5`)
+- Consider setting `--latency-wait` with larger number (default: `5` seconds)
 
 ---
 ## Priorities
@@ -909,8 +947,8 @@ snakemake -s your/workflow.smk --dag | dot -Tpng &gt; workflow.png
 ```
 
 
-<div id="htmlwidget-07819d05fe984b2f925d" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-07819d05fe984b2f925d">{"x":{"diagram":"digraph snakemake_dag {\n    graph[bgcolor=white, margin=0, rankdir=LR];\n    node[shape=box, style=rounded, fontname=sans, fontsize=10, penwidth=2];\n    edge[penwidth=2, color=grey];\n\t0[label = \"all\", color = \"0.51 0.6 0.85\", style=\"rounded\"];\n\t1[label = \"calculate_ntb\", color = \"0.09 0.6 0.85\", style=\"rounded\"];\n\t2[label = \"run_feht\", color = \"0.24 0.6 0.85\", style=\"rounded\"];\n\t3[label = \"find_maximum_negative_threshold\", color = \"0.62 0.6 0.85\", style=\"rounded\"];\n\t4[label = \"expand_cohorts\", color = \"0.36 0.6 0.85\", style=\"rounded\"];\n\t5[label = \"cluster_grapetree\", color = \"0.49 0.6 0.85\", style=\"rounded\"];\n\t6[label = \"calculate_newick_tree\", color = \"0.00 0.6 0.85\", style=\"rounded\"];\n\t7[label = \"format_grapetree_calls\", color = \"0.60 0.6 0.85\", style=\"rounded\"];\n\t8[label = \"calculate_cohorts\", color = \"0.11 0.6 0.85\", style=\"rounded\"];\n\t9[label = \"binarize_markers\", color = \"0.18 0.6 0.85\", style=\"rounded\"];\n\t10[label = \"get_PIRATE_to_Rtab\", color = \"0.64 0.6 0.85\", style=\"rounded\"];\n\t11[label = \"pirate_pangenome\", color = \"0.29 0.6 0.85\", style=\"rounded\"];\n\t12[label = \"get_positive_primers\", color = \"0.33 0.6 0.85\", style=\"rounded\"];\n\t13[label = \"concatenate_blast_results\", color = \"0.40 0.6 0.85\", style=\"rounded\"];\n\t14[label = \"blast_top_pairs_against_genomes\", color = \"0.27 0.6 0.85\", style=\"rounded\"];\n\t15[label = \"fastulate_top_pairs\", color = \"0.42 0.6 0.85\", style=\"rounded\"];\n\t16[label = \"extract_top_pairs\", color = \"0.22 0.6 0.85\", style=\"rounded\"];\n\t17[label = \"select_top_primers\", color = \"0.53 0.6 0.85\", style=\"rounded\"];\n\t18[label = \"format_primer_table\", color = \"0.47 0.6 0.85\", style=\"rounded\"];\n\t19[label = \"generate_primer\", color = \"0.16 0.6 0.85\", style=\"rounded\"];\n\t20[label = \"generate_primer_configs\", color = \"0.58 0.6 0.85\", style=\"rounded\"];\n\t21[label = \"generate_consensus_sequence\", color = \"0.38 0.6 0.85\", style=\"rounded\"];\n\t22[label = \"summarize_balanaced\", color = \"0.04 0.6 0.85\", style=\"rounded\"];\n\t23[label = \"symlink_balanced_ntb\", color = \"0.07 0.6 0.85\", style=\"rounded\"];\n\t24[label = \"calculate_ntb_balanced\", color = \"0.44 0.6 0.85\", style=\"rounded\"];\n\t25[label = \"run_feht_balanced\", color = \"0.13 0.6 0.85\", style=\"rounded\"];\n\t26[label = \"transpose_balanced\", color = \"0.56 0.6 0.85\", style=\"rounded\"];\n\t27[label = \"create_balanced_cohorts\", color = \"0.02 0.6 0.85\", style=\"rounded\"];\n\t28[label = \"transpose_binary_markers\", color = \"0.20 0.6 0.85\", style=\"rounded\"];\n\t29[label = \"generate_primer_pair_calls\", color = \"0.31 0.6 0.85\", style=\"rounded\"];\n\t29 -> 0\n\t12 -> 0\n\t1 -> 0\n\t2 -> 1\n\t3 -> 2\n\t4 -> 2\n\t9 -> 2\n\t4 -> 3\n\t5 -> 4\n\t8 -> 4\n\t6 -> 5\n\t7 -> 6\n\t5 -> 8\n\t11 -> 9\n\t10 -> 9\n\t13 -> 12\n\t14 -> 13\n\t15 -> 14\n\t16 -> 15\n\t17 -> 16\n\t22 -> 17\n\t18 -> 17\n\t19 -> 18\n\t20 -> 19\n\t21 -> 20\n\t11 -> 21\n\t23 -> 22\n\t24 -> 23\n\t25 -> 24\n\t27 -> 25\n\t3 -> 25\n\t26 -> 25\n\t27 -> 26\n\t3 -> 27\n\t4 -> 27\n\t28 -> 27\n\t9 -> 28\n\t12 -> 29\n}            ","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-0500c26bac2f30ed8b28" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0500c26bac2f30ed8b28">{"x":{"diagram":"digraph snakemake_dag {\n    graph[bgcolor=white, margin=0, rankdir=LR];\n    node[shape=box, style=rounded, fontname=sans, fontsize=10, penwidth=2];\n    edge[penwidth=2, color=grey];\n\t0[label = \"all\", color = \"0.51 0.6 0.85\", style=\"rounded\"];\n\t1[label = \"calculate_ntb\", color = \"0.09 0.6 0.85\", style=\"rounded\"];\n\t2[label = \"run_feht\", color = \"0.24 0.6 0.85\", style=\"rounded\"];\n\t3[label = \"find_maximum_negative_threshold\", color = \"0.62 0.6 0.85\", style=\"rounded\"];\n\t4[label = \"expand_cohorts\", color = \"0.36 0.6 0.85\", style=\"rounded\"];\n\t5[label = \"cluster_grapetree\", color = \"0.49 0.6 0.85\", style=\"rounded\"];\n\t6[label = \"calculate_newick_tree\", color = \"0.00 0.6 0.85\", style=\"rounded\"];\n\t7[label = \"format_grapetree_calls\", color = \"0.60 0.6 0.85\", style=\"rounded\"];\n\t8[label = \"calculate_cohorts\", color = \"0.11 0.6 0.85\", style=\"rounded\"];\n\t9[label = \"binarize_markers\", color = \"0.18 0.6 0.85\", style=\"rounded\"];\n\t10[label = \"get_PIRATE_to_Rtab\", color = \"0.64 0.6 0.85\", style=\"rounded\"];\n\t11[label = \"pirate_pangenome\", color = \"0.29 0.6 0.85\", style=\"rounded\"];\n\t12[label = \"get_positive_primers\", color = \"0.33 0.6 0.85\", style=\"rounded\"];\n\t13[label = \"concatenate_blast_results\", color = \"0.40 0.6 0.85\", style=\"rounded\"];\n\t14[label = \"blast_top_pairs_against_genomes\", color = \"0.27 0.6 0.85\", style=\"rounded\"];\n\t15[label = \"fastulate_top_pairs\", color = \"0.42 0.6 0.85\", style=\"rounded\"];\n\t16[label = \"extract_top_pairs\", color = \"0.22 0.6 0.85\", style=\"rounded\"];\n\t17[label = \"select_top_primers\", color = \"0.53 0.6 0.85\", style=\"rounded\"];\n\t18[label = \"format_primer_table\", color = \"0.47 0.6 0.85\", style=\"rounded\"];\n\t19[label = \"generate_primer\", color = \"0.16 0.6 0.85\", style=\"rounded\"];\n\t20[label = \"generate_primer_configs\", color = \"0.58 0.6 0.85\", style=\"rounded\"];\n\t21[label = \"generate_consensus_sequence\", color = \"0.38 0.6 0.85\", style=\"rounded\"];\n\t22[label = \"summarize_balanaced\", color = \"0.04 0.6 0.85\", style=\"rounded\"];\n\t23[label = \"symlink_balanced_ntb\", color = \"0.07 0.6 0.85\", style=\"rounded\"];\n\t24[label = \"calculate_ntb_balanced\", color = \"0.44 0.6 0.85\", style=\"rounded\"];\n\t25[label = \"run_feht_balanced\", color = \"0.13 0.6 0.85\", style=\"rounded\"];\n\t26[label = \"transpose_balanced\", color = \"0.56 0.6 0.85\", style=\"rounded\"];\n\t27[label = \"create_balanced_cohorts\", color = \"0.02 0.6 0.85\", style=\"rounded\"];\n\t28[label = \"transpose_binary_markers\", color = \"0.20 0.6 0.85\", style=\"rounded\"];\n\t29[label = \"generate_primer_pair_calls\", color = \"0.31 0.6 0.85\", style=\"rounded\"];\n\t29 -> 0\n\t12 -> 0\n\t1 -> 0\n\t2 -> 1\n\t3 -> 2\n\t4 -> 2\n\t9 -> 2\n\t4 -> 3\n\t5 -> 4\n\t8 -> 4\n\t6 -> 5\n\t7 -> 6\n\t5 -> 8\n\t11 -> 9\n\t10 -> 9\n\t13 -> 12\n\t14 -> 13\n\t15 -> 14\n\t16 -> 15\n\t17 -> 16\n\t22 -> 17\n\t18 -> 17\n\t19 -> 18\n\t20 -> 19\n\t21 -> 20\n\t11 -> 21\n\t23 -> 22\n\t24 -> 23\n\t25 -> 24\n\t27 -> 25\n\t3 -> 25\n\t26 -> 25\n\t27 -> 26\n\t3 -> 27\n\t4 -> 27\n\t28 -> 27\n\t9 -> 28\n\t12 -> 29\n}            ","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 class: center, middle
