@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introduction to Snakemake</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Dillon Barker" />
+    <meta name="date" content="2021-10-22" />
+    <script src="snakemake-intro-lesson-3_files/htmlwidgets/htmlwidgets.js"></script>
+    <script src="snakemake-intro-lesson-3_files/viz/viz.js"></script>
+    <link href="snakemake-intro-lesson-3_files/DiagrammeR-styles/styles.css" rel="stylesheet" />
+    <script src="snakemake-intro-lesson-3_files/grViz-binding/grViz.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Introduction to Snakemake
+### Dillon Barker
+### 2021-10-22
+
+---
+
+  
+
+
+
+class: inverse, center, middle
+name: lesson3
+
+# Lesson 3
+## 2021-10-22
+
+---
+
+## Lesson 3
+
+1. Assignment 2 Answer
+2. Fixing when things go wrong
+3. Priorities
+4. Script files (Python, R, and Julia)
+5. Modularizing workflows
+6. Visualizing Workflows
+7. Clinic
+
+---
+
+## Assignment 2
+  
+---
+
+## When Things Go Wrong
+### Locked Working Directories
+
+- Snakemake locks its working directory when running
+     - Prevents other snakemake instances from running in the same place
+
+- Snakemake removes the lock when it completes (success _or_ failure)
+
+- Lockfile may not be removed when if snakemake crashes or is killed by slurm
+    - `scancel --user your_username`
+
+
+```sh
+Unable to lock working directory.
+```
+
+---
+  
+## Unlocking a Stale Lock
+  
+#### The Correct Way: `--unlock`
+  
+```bash
+sbatch -c 1 --mem 2G --wrap "snakemake --unlock -s path/to/your/workflow.smk -j 1"
+```
+
+#### ☠☠☠ Nuclear Option ☠☠☠
+
+```bash
+rm -r ./.snakemake
+```
+---
+## When Things Go Wrong
+### It Should Have Worked But It Didn't!
+
+- Sometimes a job finishes successfully but snakemake doesn't detect the outputs
+
+- Filesystem latency _especially_ on a cluster like Waffles can be a factor
+    - It takes some non-zero amount of time to write results to disk
+
+- Consider setting `--latency-wait` with larger number (default: `5` seconds)
+
+---
+## Priorities
+
+.pull-left[
+- Rule priorities may be set
+
+- These **are not** the same as slurm partitions
+
+- Only determine the priority of execution _within_ the workflow
+
+- Rules default to priority `0`
+
+- Bigger numbers are higher priority
+]
+
+.pull-right[
+```python
+rule my_example:
+    input: ...
+    output: ...
+    priority: 50
+    shell: ...
+```
+]
+
+---
+## Script Files
+
+- Not to be confuse with an external command 
+
+- Like a `run` block, but stored in another file
+    - Path is specified relative to the workflow
+
+- Available languages:
+    - Python
+    - R
+    - Julia
+    
+- Snakemake will use special variables in the script
+    - These scripts won't be general purpose!
+    - Tied to snakemake
+
+---
+## Script Files
+
+```python
+# workflow.smk
+rule scriptfile_example:
+    input:
+        "path/to/inputfile",
+        "path/to/other/inputfile"
+    output:
+        "path/to/outputfile",
+        "path/to/another/outputfile"
+    script:
+        "scripts/script.py"
+```
+
+```python
+# scripts/script.py
+def do_something(data_path, out_path, threads, myparam):
+    # python code here
+
+do_something(snakemake.input[0], snakemake.output[0], 
+             snakemake.threads, snakemake.config["myparam"])
+```
+---
+## Including Workflows
+
+- Existing workflows can be included with `include`
+
+- Allows more modular design of workflows
+
+- Like copy/pasting another workflow in
+
+```python
+rule all:
+    input: "summary_report.txt"
+
+include: "summary_report.smk"
+include: "determine_amr.smk"
+include: "assemble_genomes.smk"
+```
+---
+## Visualizing Workflows
+
+
+```bash
+# Shows just the abstract graph of rules
+snakemake -s your/workflow.smk --rulegraph | dot -Tpng &gt; workflow.png
+# OR
+# Show every sample's journey through the workflow
+snakemake -s your/workflow.smk --dag | dot -Tpng &gt; workflow.png
+```
+
+
+<div id="htmlwidget-24e1f20074d27eba698f" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-24e1f20074d27eba698f">{"x":{"diagram":"digraph snakemake_dag {\n    graph[bgcolor=white, margin=0, rankdir=LR];\n    node[shape=box, style=rounded, fontname=sans, fontsize=10, penwidth=2];\n    edge[penwidth=2, color=grey];\n\t0[label = \"all\", color = \"0.51 0.6 0.85\", style=\"rounded\"];\n\t1[label = \"calculate_ntb\", color = \"0.09 0.6 0.85\", style=\"rounded\"];\n\t2[label = \"run_feht\", color = \"0.24 0.6 0.85\", style=\"rounded\"];\n\t3[label = \"find_maximum_negative_threshold\", color = \"0.62 0.6 0.85\", style=\"rounded\"];\n\t4[label = \"expand_cohorts\", color = \"0.36 0.6 0.85\", style=\"rounded\"];\n\t5[label = \"cluster_grapetree\", color = \"0.49 0.6 0.85\", style=\"rounded\"];\n\t6[label = \"calculate_newick_tree\", color = \"0.00 0.6 0.85\", style=\"rounded\"];\n\t7[label = \"format_grapetree_calls\", color = \"0.60 0.6 0.85\", style=\"rounded\"];\n\t8[label = \"calculate_cohorts\", color = \"0.11 0.6 0.85\", style=\"rounded\"];\n\t9[label = \"binarize_markers\", color = \"0.18 0.6 0.85\", style=\"rounded\"];\n\t10[label = \"get_PIRATE_to_Rtab\", color = \"0.64 0.6 0.85\", style=\"rounded\"];\n\t11[label = \"pirate_pangenome\", color = \"0.29 0.6 0.85\", style=\"rounded\"];\n\t12[label = \"get_positive_primers\", color = \"0.33 0.6 0.85\", style=\"rounded\"];\n\t13[label = \"concatenate_blast_results\", color = \"0.40 0.6 0.85\", style=\"rounded\"];\n\t14[label = \"blast_top_pairs_against_genomes\", color = \"0.27 0.6 0.85\", style=\"rounded\"];\n\t15[label = \"fastulate_top_pairs\", color = \"0.42 0.6 0.85\", style=\"rounded\"];\n\t16[label = \"extract_top_pairs\", color = \"0.22 0.6 0.85\", style=\"rounded\"];\n\t17[label = \"select_top_primers\", color = \"0.53 0.6 0.85\", style=\"rounded\"];\n\t18[label = \"format_primer_table\", color = \"0.47 0.6 0.85\", style=\"rounded\"];\n\t19[label = \"generate_primer\", color = \"0.16 0.6 0.85\", style=\"rounded\"];\n\t20[label = \"generate_primer_configs\", color = \"0.58 0.6 0.85\", style=\"rounded\"];\n\t21[label = \"generate_consensus_sequence\", color = \"0.38 0.6 0.85\", style=\"rounded\"];\n\t22[label = \"summarize_balanaced\", color = \"0.04 0.6 0.85\", style=\"rounded\"];\n\t23[label = \"symlink_balanced_ntb\", color = \"0.07 0.6 0.85\", style=\"rounded\"];\n\t24[label = \"calculate_ntb_balanced\", color = \"0.44 0.6 0.85\", style=\"rounded\"];\n\t25[label = \"run_feht_balanced\", color = \"0.13 0.6 0.85\", style=\"rounded\"];\n\t26[label = \"transpose_balanced\", color = \"0.56 0.6 0.85\", style=\"rounded\"];\n\t27[label = \"create_balanced_cohorts\", color = \"0.02 0.6 0.85\", style=\"rounded\"];\n\t28[label = \"transpose_binary_markers\", color = \"0.20 0.6 0.85\", style=\"rounded\"];\n\t29[label = \"generate_primer_pair_calls\", color = \"0.31 0.6 0.85\", style=\"rounded\"];\n\t29 -> 0\n\t12 -> 0\n\t1 -> 0\n\t2 -> 1\n\t3 -> 2\n\t4 -> 2\n\t9 -> 2\n\t4 -> 3\n\t5 -> 4\n\t8 -> 4\n\t6 -> 5\n\t7 -> 6\n\t5 -> 8\n\t11 -> 9\n\t10 -> 9\n\t13 -> 12\n\t14 -> 13\n\t15 -> 14\n\t16 -> 15\n\t17 -> 16\n\t22 -> 17\n\t18 -> 17\n\t19 -> 18\n\t20 -> 19\n\t21 -> 20\n\t11 -> 21\n\t23 -> 22\n\t24 -> 23\n\t25 -> 24\n\t27 -> 25\n\t3 -> 25\n\t26 -> 25\n\t27 -> 26\n\t3 -> 27\n\t4 -> 27\n\t28 -> 27\n\t9 -> 28\n\t12 -> 29\n}            ","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+---
+class: center, middle
+
+# Clinic
+## Please feel free to ask any questions!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
