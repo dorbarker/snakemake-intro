@@ -572,14 +572,10 @@ conda activate prokka
 conda activate --stack pirate
 ```
 
-Everything you need is in today's presentation<sup>*</sup>:
+Everything you need is in today's presentation:
 
 https://github.com/dorbarker/snakemake-intro/blob/main/presentations/snakemake-intro-lesson-1.pdf
 
-.footnote[
-<sup>*</sup>I'll be continuing to work on this between lessons,
-so expect it to change if you look ahead!
-]
 ---
 ## Assignment 1 Hints
 
