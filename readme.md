@@ -3,7 +3,9 @@ Dillon Barker 2021-10-18
 
 ## Lessons
 [Lesson 1](presentations/snakemake-intro-lesson-1.pdf)
+
 [Lesson 2](presentations/snakemake-intro-lesson-2.pdf)
+
 [Lesson 3](presentations/snakemake-intro-lesson-3.pdf)
 
 
