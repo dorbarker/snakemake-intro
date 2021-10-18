@@ -171,9 +171,11 @@ knitr::include_graphics("figures/cookie.jpg")
 ---
 ## Thinking Backwards
 
-- Snakemake figures out how to achieve the desired result:
+- Snakemake lessons/figures out how to achieve the desired result:
   - starts at the final product
   - works backwards until it finds what it needs
+
+--
 
 - A **collection of relationships** not a **sequence of instructions**
 
@@ -574,7 +576,7 @@ conda activate --stack pirate
 
 Everything you need is in today's presentation:
 
-https://github.com/dorbarker/snakemake-intro/blob/main/presentations/snakemake-intro-lesson-1.pdf
+https://github.com/dorbarker/snakemake-intro/blob/main/lessons/snakemake-intro-lesson-1.pdf
 
 ---
 ## Assignment 1 Hints
