@@ -226,14 +226,14 @@ rule combine_bowls:
 
 ---
 ## Baking → Bioinformatics
-<div id="htmlwidget-29209e715616b78b8074" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-29209e715616b78b8074">{"x":{"diagram":"\ndigraph {\n  rankdir=LR;\n  fastq[label=\"FASTQ\"];\n  fasta[label=\"Genome FASTA\"];\n  alleles[label=\"Core Alleles\", shape=\"MRecord\"];\n  calls[label=\"Calls Table\"];\n  \n  dummy[shape=point, width=0.01, height=0.01];\n  fastq -> fasta [label = \"SPAdes\"];\n\n  alleles -> dummy[dir = none, style=\"dashed\"];\n  fasta -> dummy[dir = none];\n  dummy -> calls[label = \"MLST\"];\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-5042a2f7769d10a533a9" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5042a2f7769d10a533a9">{"x":{"diagram":"\ndigraph {\n  rankdir=LR;\n  fastq[label=\"FASTQ\"];\n  fasta[label=\"Genome FASTA\"];\n  alleles[label=\"Core Alleles\", shape=\"MRecord\"];\n  calls[label=\"Calls Table\"];\n  \n  dummy[shape=point, width=0.01, height=0.01];\n  fastq -> fasta [label = \"SPAdes\"];\n\n  alleles -> dummy[dir = none, style=\"dashed\"];\n  fasta -> dummy[dir = none];\n  dummy -> calls[label = \"MLST\"];\n  \n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## Multiple Samples
 
-<div id="htmlwidget-0d46d2b18af6cedcdd4d" style="width:100%;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-0d46d2b18af6cedcdd4d">{"x":{"diagram":"\ndigraph {\nrankdir=LR;\nalleles[label=\"alleles/aspA.fasta … uncA.fasta\", shape=MRecord];\ncalls[label=\"calls.tsv\"];\n\nfastqA[label=\"fastqs/genomeA.fastq\"];\nfastqB[label=\"fastqs/genomeB.fastq\"];\nfastqC[label=\"fastqs/genomeC.fastq\"];\n\nfastaA[label=\"assemblies/genomeA/contigs.fasta\"];\nfastaB[label=\"assemblies/genomeB/contigs.fasta\"];\nfastaC[label=\"assemblies/genomeC/contigs.fasta\"];\n\nmlstA[label=\"mlst_results/genomeA.tsv\"];\nmlstB[label=\"mlst_results/genomeB.tsv\"];\nmlstC[label=\"mlst_results/genomeC.tsv\"];\n\nfastqA -> fastaA [label=\"SPAdes\"];\nfastqB -> fastaB [label=\"SPAdes\"];\nfastqC -> fastaC [label=\"SPAdes\"];\n\ndummyA[shape=point, width=0.01, height=0.01];\ndummyB[shape=point, width=0.01, height=0.01];\ndummyC[shape=point, width=0.01, height=0.01];\ndummyD[shape=point, width=0.01, height=0.01];\n\nfastaA -> dummyA [dir=none];\nfastaB -> dummyB [dir=none];\nfastaC -> dummyC [dir=none];\nalleles -> {dummyA, dummyB, dummyC} [dir=none, style=\"dashed\"];\n\ndummyA -> mlstA [label=\"MLST\"];\ndummyB -> mlstB [label=\"MLST\"];\ndummyC -> mlstC [label=\"MLST\"];\n\n{mlstA, mlstB, mlstC} -> dummyD [dir=none];\ndummyD -> calls [label=\"combine\"];\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-719923880bb0d98fe12c" style="width:100%;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-719923880bb0d98fe12c">{"x":{"diagram":"\ndigraph {\nrankdir=LR;\nalleles[label=\"alleles/aspA.fasta … uncA.fasta\", shape=MRecord];\ncalls[label=\"calls.tsv\"];\n\nfastqA[label=\"fastqs/genomeA.fastq\"];\nfastqB[label=\"fastqs/genomeB.fastq\"];\nfastqC[label=\"fastqs/genomeC.fastq\"];\n\nfastaA[label=\"assemblies/genomeA/contigs.fasta\"];\nfastaB[label=\"assemblies/genomeB/contigs.fasta\"];\nfastaC[label=\"assemblies/genomeC/contigs.fasta\"];\n\nmlstA[label=\"mlst_results/genomeA.tsv\"];\nmlstB[label=\"mlst_results/genomeB.tsv\"];\nmlstC[label=\"mlst_results/genomeC.tsv\"];\n\nfastqA -> fastaA [label=\"SPAdes\"];\nfastqB -> fastaB [label=\"SPAdes\"];\nfastqC -> fastaC [label=\"SPAdes\"];\n\ndummyA[shape=point, width=0.01, height=0.01];\ndummyB[shape=point, width=0.01, height=0.01];\ndummyC[shape=point, width=0.01, height=0.01];\ndummyD[shape=point, width=0.01, height=0.01];\n\nfastaA -> dummyA [dir=none];\nfastaB -> dummyB [dir=none];\nfastaC -> dummyC [dir=none];\nalleles -> {dummyA, dummyB, dummyC} [dir=none, style=\"dashed\"];\n\ndummyA -> mlstA [label=\"MLST\"];\ndummyB -> mlstB [label=\"MLST\"];\ndummyC -> mlstC [label=\"MLST\"];\n\n{mlstA, mlstB, mlstC} -> dummyD [dir=none];\ndummyD -> calls [label=\"combine\"];\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 ---
 ## Multiple Samples
 
@@ -496,7 +496,7 @@ conda activate --stack pirate
 
 Everything you need is in today's presentation&lt;sup&gt;*&lt;/sup&gt;:
 
-https://github.com/dorbarker/snakemake-intro/blob/main/snakemake-intro.pdf
+https://github.com/dorbarker/snakemake-intro/blob/main/presentations/snakemake-intro-lesson-1.pdf
 
 .footnote[
 &lt;sup&gt;*&lt;/sup&gt;I'll be continuing to work on this between lessons,

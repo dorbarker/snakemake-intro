@@ -574,7 +574,7 @@ conda activate --stack pirate
 
 Everything you need is in today's presentation<sup>*</sup>:
 
-https://github.com/dorbarker/snakemake-intro/blob/main/snakemake-intro.pdf
+https://github.com/dorbarker/snakemake-intro/blob/main/presentations/snakemake-intro-lesson-1.pdf
 
 .footnote[
 <sup>*</sup>I'll be continuing to work on this between lessons,
