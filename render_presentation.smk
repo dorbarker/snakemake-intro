@@ -17,4 +17,4 @@ rule render_pdf:
 		"lessons/{filename}.pdf"
 	priority: 1
 	shell:
-		"R --quiet -e 'pagedown::chrome_print(\"{input}\")'"
+		"R --quiet -e 'pagedown::chrome_print(\"{input}\", output=\"{output\"})'"
