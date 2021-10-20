@@ -152,19 +152,6 @@ rule pangenome:
 ---
 
 ## Using Conda in Rules
-```python
-rule annotate_genome:
-    input: "genomes/{sample}.fasta"
-    output: "annotations/{sample}/{sample}.gff"
-    conda: "envs/prokka.yaml"
-    shell:         
-        "prokka --force --prefix {wildcards.sample} "
-        "--cpus {threads} -o annotations/{wildcards.sample} {input}"
-```
----
-
-## Conda YAML files
-
 - Placed **relative to the Snakefile**, _not_ the project directory
 
 ```python
@@ -177,7 +164,7 @@ rule annotate_genome:
         "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
-
+--
 The above will look for the following directory structure:
 
 ```sh
@@ -240,7 +227,7 @@ number: 5
 ---
 ## Config
 
-We can use `config` to provide different Genbank files for different species
+Example: We can use `config` to provide different Genbank files to `prokka` for different species
 
 ```python
 gbk_file = config["proteins"]
@@ -369,6 +356,7 @@ snakemake <…> --cluster 'sbatch -c {threads} --mem {params.mem} --time {params
 
 - Params are fairly "fixed"
     - Used primarily to simplify `shell` block
+    - May be derived from wildcards
 
 - Config for context-specific information
     - _ e.g._ providing a particular host database to `kat`, training file to `chewBBACA`, or Genbank file to `prokka`
