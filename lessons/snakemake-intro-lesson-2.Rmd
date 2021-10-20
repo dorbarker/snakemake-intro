@@ -49,16 +49,60 @@ name: lesson2
 
 ---
 ## Lesson 2
-  
-1. Assignment 1 Answers
-2. Conda Integration
-3. Params and Threads
-4. Local Rules
-5. Mixing in Python
-6. Assignment 2
+
+1. Erratum
+2. Wildcards by Analogy
+3. Assignment 1 Answers
+4. Conda Integration
+5. Params and Configuration
+6. Local Rules
+7. Mixing in Python
+8. Assignment 2
 
 ---
-  
+## Erratum
+
+### I put the wrong Genbank file in the tutorial data; please update!
+
+#### Waffles
+```bash
+cp /Drives/W/Projects/CampyLab/snakemake-intro-data/NCTC11168.gbk ~/snakemake-intro-data
+# OR
+cp /Drives/W/Temporary/snakemake-intro-data/NCTC11168.gbk ~/snakemake-intro-data
+```
+
+#### Not-Waffles
+```bash
+url="https://github.com/dorbarker/snakemake-intro/blob/main/data/snakemake-intro-data.zip"
+fn="$HOME/snakemake-intro-data.zip"
+
+curl -o $fn $url || wget -O $fn $url
+unzip $fn
+```
+
+---
+## Wildcards by Analogy
+
+**Snakemake**
+```python
+rule process_item:
+    input: "genomes/{isolate}.fasta"
+    output: "results/{isolate}.txt"
+    shell: "turboencabulate --sample-name {wildcards.isolate} -i {input} -o {output}" 
+```
+**Bash `for`-loops**
+```bash
+for genome in genomes/*.fasta; do
+    isolate=$(basename $genome .fasta)
+    turboencabulate --sample-name $isolate -i $genome -o results/${isolate}.txt
+done
+```
+**GNU Parallel**
+```bash
+parallel "turboencabulate --sample-name {/.} -i {} -o results/{/.}.txt" ::: genomes/*.fasta
+```
+
+---
 ```python
 from pathlib import Path
 samples = [p.stem for p in Path("genomes").glob("*.fasta")]
@@ -88,12 +132,26 @@ rule pangenome:
     shell: "PIRATE --input gffs/ --output pangenome/ --nucl --threads {threads}"
 ```
 ---
-## Conda Integration
-  
-- Snakemake can manage `conda` directly
-    - No need to manually build or activate conda environments like in Lesson 1
+## Assignment 1 Graph
 
-### Conda directive
+![](figures/asn-1.png)
+
+---
+## Conda Integration
+
+- Snakemake can manage `conda` directly
+    - Installation
+    - Activation
+
+--
+
+- Advantages of **automation** and **reproducibility**
+    - No need to manually manage conda environments at the command line
+    - Version tracking for software
+
+---
+
+## Using Conda in Rules
 ```python
 rule annotate_genome:
     input: "genomes/{sample}.fasta"
@@ -104,9 +162,9 @@ rule annotate_genome:
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
 ```
 ---
-  
+
 ## Conda YAML files
-  
+
 - Placed **relative to the Snakefile**, _not_ the project directory
 
 ```python
@@ -121,12 +179,12 @@ rule annotate_genome:
 ```
 
 The above will look for the following directory structure:
-  
+
 ```sh
 snakefiles/
     ├── annotate.smk
-    └── envs
-    └── prokka.yaml
+    └── envs/
+        └── prokka.yaml
 ```
 ---
 ## Conda YAML files
@@ -143,14 +201,14 @@ dependencies:
 ```
 
 --
-  
+
 … is equivalent to this conda command:
 ```sh
-conda create -n prokka -c conda-forge -c bioconda -c defaults prokka
+conda create --name prokka -c conda-forge -c bioconda -c defaults prokka
 ```
 ---
 ## Using Conda Directives with Snakemake
-  
+
 - Must explicitly tell Snakemake to use Conda
 
 ```sh
@@ -161,13 +219,13 @@ snakemake --use-conda <…>
 
 ---
 ## Config
-  
+
 - Available through two methods
     - `--config` passes arguments directly via command line
     - `--configfile` points to a YAML file that provides values
-
+        
 --
-  
+
 `--config key="value" number=5` is equivalent to `--configfile config.yaml` where…
 
 ```yaml
@@ -180,10 +238,47 @@ number: 5
 - Python `dict` available within the Snakefile
     - Access as `config["key"]` inside the workflow
 ---
-  
-### Configuration via:
+## Config
+
+We can use `config` to provide different Genbank files for different species
+
+```python
+gbk_file = config["proteins"]
+
+rule annotate:
+    input: "genomes/{sample}.fasta"
+    output: "annotations/{sample}/{sample}.gff"
+    threads: 8
+    params: outdir="annotations/{sample}"
+    shell:
+        "prokka --force --cpus {threads} "
+        "--prefix {wildcards.sample} --outdir {params.outdir} "
+        "--proteins {gbk_file} "
+        "{input}"
+```
+
+---
+
+## Configfile
+
+- May also set a default path with `configfile` directive in workflow
+
+- Defaults are overridden by anything provided at the command line
+
+```python
+configfile: "analysis_config.yaml"
+
+rule all:
+    input: "results.txt"
+
+...
+```
+---
+class: middle
+
+## Configuration via:
 .pull-left[
-`--config` flag:
+`--config`:
     - ↓ effort
     - ↑ flexible
     - ↓ reproducible
@@ -196,7 +291,7 @@ YAML file:
 ]
 ---
 ## Params
-  
+
 - Non-file parameters may be provided in the `params` directive
 
 ```python
@@ -211,12 +306,25 @@ rule annotate:
         "{input}"
 ```
 ---
-  
+## Slurm Resources on the Cluster
+
+##### `mem` - Memory
+- The amount of RAM provisioned to a job
+    - `12G` → May use a maximum of 12 gigabytes memory
+    - Valid suffixes: `K` `M` `G` `T`
+
+--
+
+##### `time` - Maximum Duration
+- Maximum length of time a job can run
+    - `"minutes"`
+    - `"minutes:seconds"`
+    - `"hours:minutes:seconds"`
+    - `"days-hours"`
+    - `"days-hours:minutes"`
+    - `"days-hours:minutes:seconds"`
+---
 ## Abusing Params to Fine-tune Resources
-  
-```sh
-snakemake <…> --cluster 'sbatch -c {threads} --mem {params.mem} --time {params.time} '
-```
 
 ```python
 rule annotate_genome:
@@ -225,7 +333,7 @@ rule annotate_genome:
     threads: 8
     params:
         time="45:00",
-        mem="16G"
+        mem="12G"
     shell:         
         "prokka --force --prefix {wildcards.sample} "
         "--cpus {threads} -o annotations/{wildcards.sample} {input}"
@@ -239,16 +347,31 @@ rule symlink_gff:
         mem="100M"
     shell: "ln -sr {input} {output}"
 ```
+---
 
+## Abusing Params to Fine-tune Resources
+```sh
+snakemake <…> --cluster 'sbatch -c {threads} --mem {params.mem} --time {params.time} '
+```
+--
+### Considerations
+- Resource requirements will travel with your workflow
+
+- Be mindful of the effect of _e.g._ genome size
+    - Can always set `params` with `config`!
+
+- If you use `params` to specify resources, you must do it for _every rule **submitted**_ to the cluster
+    - Not `all` or any **local** rules
+        - (more in a moment)
 
 ---
 ## Config vs Params
-  
+
 - Params are fairly "fixed"
     - Used primarily to simplify `shell` block
 
-- Config for run-specific information
-    - _ e.g._ providing a particular host database to `kat` or training file to `chewBBACA`
+- Config for context-specific information
+    - _ e.g._ providing a particular host database to `kat`, training file to `chewBBACA`, or Genbank file to `prokka`
 
 ---
 ## Local Rules
@@ -290,13 +413,13 @@ rule symlink_fastas:
 ```
 ---
 ## Mixing in Python
-  
+
 - Python may be mixed in arbitrarily into Snakemake
     - _i.e._ All Python is valid Snakemake
 
 - Two main ways of using Python in Snakemake
-- `run` blocks
-- Python used directly in the Snakemake file
+    - `run` blocks
+    - Python used directly in the Snakemake file
 
 
 .footnote[Python → Snakemake, get it‽]
@@ -311,14 +434,16 @@ rule symlink_fastas:
 - May access snakemake values like `input` and `output`
 
 ```python
-rule transpose_table:
-    input: "data/results_table.csv"
-    output: "data/results_table_transposed.csv"
+rule extract_and_filter_columnA:
+    input: "data/results_table.tsv"
+    output: "data/columnA_filtered.tsv"
     run:
         import pandas as pd
-        original = pd.read_csv(input[0], header=0)
-        transposed = original.transpose()
-        transposed.to_csv(output[0], header=False)
+        data_table = pd.read_csv(input[0], sep = "\t")
+        # select rows from columnA where columnC is greater than 42
+        selected_rows = data_table["columnC"] > 42
+        selected_columnA = data_table["columnA"].loc[selected_rows]
+        selected_columnA.to_csv(output[0], header=False)
 ```
 
 ---
@@ -333,7 +458,7 @@ rule transpose_table:
 - Can provide a Python function to `input` instead of a file pattern
 
 ---
-  
+
 - `select_high_quality_genomes` takes a list of FASTAs, then symlinks
 high-quality ones into `./good_genomes/` and writes a report called
 `quality_report.txt`
@@ -360,56 +485,30 @@ rule run_abricate:
     shell: "abricate {input.fastas} > {output}"
 ```
 ---
-## Assignment 2 - Building On Assignment 1
+## Assignment 2 - Building Upon Assignment 1
 1. Create conda YAMLs for `prokka` and `pirate`
+    - Remember where snakemake looks for them!
 
-2. Give appropriate resources to each rule with `params`
+2. Give appropriate `time` and `mem` resources to each rule with `params`
 
-3. Write a rule with a `run` block that reads `PIRATE.gene_families.tsv`, finds loci present in 100% of genomes, and writes their names to a text file
+3. Write a rule with a `run` block that reads `PIRATE.gene_families.tsv`, finds loci present in 100% of genomes, and writes their names to `core_loci.txt`
     - columns of interest: `gene_family` & `number_genomes`
 
-4. Provides a GBK file to prokka's `--proteins` argument via `--config` or `--configfile`
+4. Provides a GBK file to `prokka`'s `--proteins` argument via `--config` or `--configfile`
 
-5. Change your symlinking rule to be local
----
-  
-## Assignment 2 Hints
-  
-### `pandas` for easily reading and writing tabular files
-```python
-import pandas as pd
-data_table = pd.read_csv(input[0], sep = "\t")
-# select rows from columnA where columnC is greater than 42
-selected_rows = data_table["columnC"] > 42
-selected_columnA = data_table["columnA"].loc[selected_rows]
-selected_columnA.to_csv(output[0], header=False)
-```
-
-### Creating symlinks from a list of file basenames
-```python
-# list_of_names = ["larry", "moe", "curly"]
-import os
-for name in list_of_names:
-    src = f"originals/{name}.txt"
-    dst = f"filtered/{name}.txt"
-    os.symlink(src, dst)
-```
+5. Change your symlinking rule to be a **local** rule
 
 ---
-  
+
 ## Assignment 2 Hints
 
-### Reading a text file into a list with Python
+- How has your `all` rule changed?
 
-- Consider combining functions like this with `expand()`
-    - `expand("path/to/{sample}.txt", sample=read_lines_to_list())`
+- Think about how much memory and time needs to be allocated for different rules
 
-```python
-def read_lines_to_list(path: str):
-    lines = []
-with open(path, "r") as f:
-    for line in f:
-        trimmed_line = line.strip()
-        lines.append(trimmed_line)
-return lines
-```
+### PDF Version of Today's Lecture
+
+https://github.com/dorbarker/snakemake-intro/blob/main/lessons/snakemake-intro-lesson-2.pdf
+
+### Answer Key to Assignment 1
+https://github.com/dorbarker/snakemake-intro/blob/main/answer_keys/asn-1.smk
