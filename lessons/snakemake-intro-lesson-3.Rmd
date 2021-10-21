@@ -272,6 +272,18 @@ grViz(workflow)
 snakemake --lint -s path/toyour/workflow.smk
 ```
 ---
+## Colophon
+
+- This presentation is written in RMarkdown + Xaringan
+    - Built with Snakemake
+
+### GitHub Repository
+https://github.com/dorbarker/snakemake-intro/
+
+### Today's Lecture
+https://github.com/dorbarker/snakemake-intro/blob/main/lessons/snakemake-intro-lesson-3.pdf
+
+---
 class: center, middle
 
 # Clinic
