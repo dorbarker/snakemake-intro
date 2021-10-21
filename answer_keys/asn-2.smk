@@ -20,7 +20,7 @@ rule annotate:
 		"--proteins {gbk_file} "
 		"{input}"
 
-rule symlink_gffS:
+rule symlink_gffs:
 	input: "annotations/{sample}/{sample}.gff"
 	output: "gffs/{sample}.gff"
 	threads: 1

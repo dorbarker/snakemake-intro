@@ -18,6 +18,7 @@ output:
 ```{r setup, include=FALSE}
 library(DiagrammeR)
 library(stringr)
+library(tufte)
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(
   fig.width=9, fig.height=3.5, fig.retina=3,
@@ -57,12 +58,47 @@ name: lesson3
 4. Script files (Python, R, and Julia)
 5. Modularizing workflows
 6. Visualizing Workflows
-7. Clinic
+7. Linting
+8. Clinic
 
 ---
+## Assignment 2 Answer
 
-## Assignment 2
-  
+### Conda Environment Files
+```
+snakemake-intro-data/
+├── asn-2.smk
+└── envs/
+    ├── pirate.yaml
+    └── prokka.yaml
+```
+
+.pull-left[
+```yaml
+# envs/prokka.yaml
+name: prokka
+channels:
+        - conda-forge
+        - bioconda
+dependencies:
+        - prokka
+```
+]
+.pull-right[
+```yaml
+# envs/pirate.yaml
+name: pirate
+channels:
+        - bioconda
+        - conda-forge
+dependencies:
+        - pirate
+```
+]
+---
+## Assignment 2 Answer
+### Snakemake Workflow
+https://github.com/dorbarker/snakemake-intro/blob/main/answer_keys/asn-2.smk
 ---
 
 ## When Things Go Wrong
@@ -73,6 +109,8 @@ name: lesson3
 
 - Snakemake removes the lock when it completes (success _or_ failure)
 
+--
+
 - Lockfile may not be removed when if snakemake crashes or is killed by slurm
     - `scancel --user your_username`
 
@@ -82,19 +120,19 @@ Unable to lock working directory.
 ```
 
 ---
-  
 ## Unlocking a Stale Lock
-  
-#### The Correct Way: `--unlock`
-  
-```bash
-sbatch -c 1 --mem 2G --wrap "snakemake --unlock -s path/to/your/workflow.smk -j 1"
-```
 
+#### The Correct Way: `--unlock`
+
+```bash
+sbatch -c 1 --mem 2G --wrap=\
+"snakemake --unlock -s path/to/your/workflow.smk -d your/locked/analysis/ -j 1"
+```
+--
 #### ☠☠☠ Nuclear Option ☠☠☠
 
 ```bash
-rm -r ./.snakemake
+rm -r your/locked/analysis/.snakemake
 ```
 ---
 ## When Things Go Wrong
@@ -121,7 +159,7 @@ rm -r ./.snakemake
 
 - Bigger numbers are higher priority
 ]
-
+--
 .pull-right[
 ```python
 rule my_example:
@@ -135,16 +173,22 @@ rule my_example:
 ---
 ## Script Files
 
-- Not to be confuse with an external command 
+- Not to be confused with an external command that happens to be a script
+
+--
 
 - Like a `run` block, but stored in another file
     - Path is specified relative to the workflow
+
+--
 
 - Available languages:
     - Python
     - R
     - Julia
-    
+
+--
+
 - Snakemake will use special variables in the script
     - These scripts won't be general purpose!
     - Tied to snakemake
@@ -182,6 +226,8 @@ do_something(snakemake.input[0], snakemake.output[0],
 
 - Like copy/pasting another workflow in
 
+--
+
 ```python
 rule all:
     input: "summary_report.txt"
@@ -208,7 +254,23 @@ workflow <- paste0(readLines("figures/snakemake-rule-graph.dot"))
 grViz(workflow)
 
 ```
+---
+## Linting
+> **Lint**, or a **linter**, is a static code analysis tool 
+> used to flag programming errors, bugs, stylistic 
+> errors and suspicious constructs.
+>
+> `r tufte::quote_footer('— Wikipedia')`
 
+--
+
+- Get automated _suggestions_ for your workflow!
+
+--
+
+```bash
+snakemake --lint -s path/toyour/workflow.smk
+```
 ---
 class: center, middle
 
