@@ -66,7 +66,7 @@ name: lesson3
 
 ### Conda Environment Files
 ```
-snakemake-intro-data/
+snakefiles/
 ├── asn-2.smk
 └── envs/
     ├── pirate.yaml
@@ -178,7 +178,7 @@ rule my_example:
 --
 
 - Like a `run` block, but stored in another file
-    - Path is specified relative to the workflow
+    - Path is specified relative to the workflow like conda envs
 
 --
 
